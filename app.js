@@ -26,9 +26,29 @@ const ball = new Ball;
 ball.pos.x = 100;
 ball.pos.y = 50;
 
+ball.velocity.x = 100;
+ball.velocity.y = 100;
+
+let lastTime;
+
+function callback(milliseconds) {
+  if (lastTime) {
+    update((milliseconds - lastTime) / 1000);
+  }
+  lastTime = milliseconds;
+  requestAnimationFrame(callback);
+}
+
 function update(dt) {
   ball.pos.x += ball.velocity.x * dt;
   ball.pos.y += ball.velocity.y * dt;
+
+  if (ball.pos.x < 0 || ball.pos.x > canvas.width) {
+    ball.velocity.x = -ball.velocity.x;
+  }
+  if (ball.pos.y < 0 || ball.pos.y > canvas.height) {
+    ball.velocity.y = -ball.velocity.y;
+  }
 
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -36,3 +56,5 @@ function update(dt) {
   ctx.fillStyle = '#fff';
   ctx.fillRect(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y);
 }
+
+callback();
