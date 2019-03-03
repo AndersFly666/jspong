@@ -3,6 +3,16 @@ class Vector {
     this.x = x;
     this.y = y;
   }
+
+  get len() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  set len(value) {
+    const fact = value / this.len;
+    this.x *= fact;
+    this.y *= fact;
+  }
 }
 
 class Rect {
@@ -48,11 +58,6 @@ class Pong {
     this._context = canvas.getContext('2d');
 
     this.ball = new Ball();
-    this.ball.pos.x = 100;
-    this.ball.pos.y = 50;
-
-    this.ball.velocity.x = 100;
-    this.ball.velocity.y = 100;
 
     this.players = [
       new Player(),
@@ -74,6 +79,8 @@ class Pong {
       requestAnimationFrame(callback);
     };
     callback();
+
+    this.reset();
   }
 
   collide(player, ball) {
@@ -102,7 +109,9 @@ class Pong {
     this.ball.pos.y += this.ball.velocity.y * dt;
   
     if (this.ball.left < 0 || this.ball.right > this._canvas.width) {
-      this.ball.velocity.x = -this.ball.velocity.x;
+      const playerId = this.ball.velocity.x < 0 ? 1 : 0;
+      this.players[playerId].score++;
+      this.reset();
     }
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
       this.ball.velocity.y = -this.ball.velocity.y;
@@ -114,6 +123,22 @@ class Pong {
   
     this.draw();   
   }
+
+  reset() {
+    this.ball.pos.x = this._canvas.width / 2;
+    this.ball.pos.y = this._canvas.height / 2;
+
+    this.ball.velocity.x = 0;
+    this.ball.velocity.y = 0;
+  }
+
+  start() {
+    if (this.ball.velocity.x === 0 && this.ball.velocity.y === 0) {
+      this.ball.velocity.x = 300 * (Math.random() > 0.5 ? 1 : -1);
+      this.ball.velocity.y = 300 * (Math.random() * 2 - 1);
+      this.ball.velocity.len = 200;
+    }
+  }
 }
 
 const canvas = document.getElementById('canvas');
@@ -121,4 +146,8 @@ const pong = new Pong(canvas);
 
 canvas.addEventListener('mousemove', event => {
   pong.players[0].pos.y = event.offsetY;
-})
+});
+
+canvas.addEventListener('click', event => {
+  pong.start();
+});
