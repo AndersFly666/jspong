@@ -7,7 +7,7 @@ class Vector {
 
 class Rect {
   constructor(w, h) {
-    this.pos = new Vector;
+    this.pos = new Vector();
     this.size = new Vector(w, h);
   }
 
@@ -31,7 +31,7 @@ class Rect {
 class Ball extends Rect {
   constructor() {
     super(10, 10);
-    this.velocity = new Vector;
+    this.velocity = new Vector();
   }
 }
 
@@ -47,7 +47,7 @@ class Pong {
     this._canvas = canvas;
     this._context = canvas.getContext('2d');
 
-    this.ball = new Ball;
+    this.ball = new Ball();
     this.ball.pos.x = 100;
     this.ball.pos.y = 50;
 
@@ -55,8 +55,8 @@ class Pong {
     this.ball.velocity.y = 100;
 
     this.players = [
-      new Player,
-      new Player
+      new Player(),
+      new Player()
     ];
 
     this.players[0].pos.x = 40;
@@ -74,6 +74,13 @@ class Pong {
       requestAnimationFrame(callback);
     };
     callback();
+  }
+
+  collide(player, ball) {
+    if (player.left < ball.right && player.right > ball.left && 
+        player.top < ball.bottom && player.bottom > ball.top) {
+          ball.velocity.x = -ball.velocity.x;
+        }
   }
 
   draw() {
@@ -100,6 +107,10 @@ class Pong {
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
       this.ball.velocity.y = -this.ball.velocity.y;
     }
+
+    this.players[1].pos.y = this.ball.pos.y;
+
+    this.players.forEach(player => this.collide(player, this.ball));
   
     this.draw();   
   }
@@ -107,3 +118,7 @@ class Pong {
 
 const canvas = document.getElementById('canvas');
 const pong = new Pong(canvas);
+
+canvas.addEventListener('mousemove', event => {
+  pong.players[0].pos.y = event.offsetY;
+})
